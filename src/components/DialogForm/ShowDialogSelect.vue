@@ -17,11 +17,10 @@
   </div>
 </template>
   
-<script lang="ts">
+<script>
 import { defineComponent, ref } from "vue";
 import stringGuard from "@/modules/stringGuard";
 import useFormValidation from '../../modules/useFormValidation';
-import { StatesTodo } from '../../types/Todo';
 
 export default defineComponent({
     name: "ShowDialogSelect",
@@ -36,25 +35,19 @@ export default defineComponent({
             type: String,
         },
     },
-    computed:{
-        getStates:function(){
-           return StatesTodo;
-        },
-    },
     setup(props, { emit }) {
-
         const { validateNameField } = useFormValidation();
         let inputValue = ref(stringGuard(props.input));
+        const StatesTodo = ["New","In progress", "Done", "Paused", "Canceled"]
         validateNameField('state', inputValue.value);
-        const updateValue = (e: Event) => {
+        const updateValue = (e) => {
             validateNameField('state', inputValue.value);
-            inputValue.value = (e.target as HTMLInputElement).value;
+            inputValue.value = e.target.value;
             emit("setSelect", inputValue.value);
         };
-        return { inputValue, updateValue };
+        return { inputValue, updateValue, getStates: StatesTodo };
     },
 });
 </script>
   
 <style scoped></style>
-  

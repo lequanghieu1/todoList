@@ -1,23 +1,15 @@
 <template>
-  <div
-    class="container-fluid vh-100 w-100 d-flex flex-column"
-  >
+  <div class="container-fluid vh-100 w-100 d-flex flex-column">
     <HeadContainer @onClickGo="onClickMenuButton" />
 
     <div class="container w-100 flex-shrink-0">
-      <TodoHat
-        :order="getOrder"
-        @handleSorting="handleSorting"
-      />
+      <TodoHat :order="getOrder" @handleSorting="handleSorting" />
     </div>
 
     <LoaderGif v-if="getLoading" />
 
-    <ErrorBlock
-      v-if="getIsError"
-      :text="getError"
-    />
-    
+    <ErrorBlock v-if="getIsError" :text="getError" />
+
     <TodoTable
       v-else
       :todos="getTodos"
@@ -33,21 +25,24 @@
   </div>
 </template>
 
-<script lang="ts">
+<script>
 import { defineComponent } from "vue";
-import { mapGetters,mapActions } from 'vuex';
+import { mapGetters, mapActions } from "vuex";
 
 import HeadContainer from "@/components/VisitTable/HeadButtonsContainer.vue";
 import ErrorBlock from "@/components/ErrorBlock.vue";
 import LoaderGif from "@/components/LoaderGif.vue";
 import ShowDialog from "@/components/DialogForm/ShowDialog.vue";
 import TodoHat from "@/components/TodoTable/TodoHat.vue";
-import TodoTable from '@/components/TodoTable/TodoTable.vue';
-import  { IDialogItem, IDialogProps } from "@/types/Dialog";
+import TodoTable from "@/components/TodoTable/TodoTable.vue";
 import stringGuard from "@/modules/stringGuard";
-import ITodo,{ emptyItem } from './types/Todo';
 
-
+const emptyItem = {
+  id: "",
+  todo: "",
+  state: "",
+  createdAt: "",
+};
 export default defineComponent({
   name: "App",
   components: {
@@ -58,82 +53,95 @@ export default defineComponent({
     TodoHat,
     TodoTable,
   },
-  computed:
-    mapGetters(['getTodos','getLoading','getOrder','getCurrentId','getShowState','getDialogProps','getScroll','getIsError','getError','getInputTodo','getInputState'])
-  ,
+  computed: {
+    ...mapGetters([
+      "getTodos",
+      "getLoading",
+      "getOrder",
+      "getCurrentId",
+      "getShowState",
+      "getDialogProps",
+      "getScroll",
+      "getIsError",
+      "getError",
+      "getInputTodo",
+      "getInputState",
+    ]),
+  },
   methods: {
     ...mapActions({
-      fetchData:'fetchData',
-      handleSorting:'handleSorting',
-      autoSelectCurrentItem:"autoSelectCurrentItem",
-      addItem:"addItem",
-      editItem:"editItem",
-      deleteItem:"deleteItem",
-      setShowState:'setShowState',
-      setDialogProps:'setDialogProps',
-      setInputTodo:"setInputTodo",
-      setInputState:"setInputState",
-      setError:'setError'}),
-    //wrapper will be need if we want in future use real api to catch errors
-    async CallerWrapper( props?: IDialogItem) {
-       try {
-       if (props?.method === "RemoveItem") {
-        this.deleteItem(this.getCurrentId);
-        return;
+      fetchData: "fetchData",
+      handleSorting: "handleSorting",
+      autoSelectCurrentItem: "autoSelectCurrentItem",
+      addItem: "addItem",
+      editItem: "editItem",
+      deleteItem: "deleteItem",
+      setShowState: "setShowState",
+      setDialogProps: "setDialogProps",
+      setInputTodo: "setInputTodo",
+      setInputState: "setInputState",
+      setError: "setError",
+    }),
+    // wrapper will be needed if we want in future use real API to catch errors
+    async CallerWrapper(props) {
+      try {
+        if (props?.method === "RemoveItem") {
+          this.deleteItem(this.getCurrentId);
+          return;
         }
-       if(props) {
-          const body: ITodo = {
+        if (props) {
+          const body = {
             todo: stringGuard(this.getInputTodo),
             state: this.getInputState,
             id: stringGuard(props?.id),
             createdAt: "",
-            }; 
-       if (props?.method === "AddItem") {
+          };
+          if (props?.method === "AddItem") {
             this.addItem(body);
             return;
-       } else if (props?.method === "EditItem") {
-            body.id=this.getCurrentId;
+          } else if (props?.method === "EditItem") {
+            body.id = this.getCurrentId;
             this.editItem(body);
             return;
           }
         }
-        this.setError({show:true,message:"unexpected action"})
+        this.setError({ show: true, message: "unexpected action" });
       } catch (error) {
-        this.setError({show:true,message:"unexpected error"})
+        this.setError({ show: true, message: "unexpected error" });
       }
     },
 
-    //Dialog ok cancel event
-    onDialogChoice: async function (props: IDialogItem) {
-      if (props.event === "Ok")
-        await this.CallerWrapper(props);
+    // Dialog ok cancel event
+    async onDialogChoice(props) {
+      if (props.event === "Ok") await this.CallerWrapper(props);
       this.setShowState(false);
     },
- 
-    //initial dialog modal form
-    onClickMenuButton: function (type: string) {
-      const props: IDialogProps = { type: type };
+
+    // initial dialog modal form
+    onClickMenuButton(type) {
+      const props = { type: type };
       if (type !== "AddItem") {
-        const currentItem = this.getTodos.find(( { id }:ITodo) => id === this.getCurrentId);
+        const currentItem = this.getTodos.find(
+          ({ id }) => id === this.getCurrentId
+        );
         if (currentItem) {
-          props.item = {...currentItem};
+          props.item = { ...currentItem };
           this.setInputTodo(currentItem.todo);
           this.setInputState(currentItem.state);
         }
-      }else{
-        props.item = {...emptyItem};
+      } else {
+        props.item = { ...emptyItem };
         this.setInputTodo(emptyItem.todo);
         this.setInputState(emptyItem.state);
       }
       this.setDialogProps(props);
       this.setShowState(true);
     },
-
   },
   mounted() {
-   this.fetchData();
-   this.handleSorting(this.getOrder.order);
-   this.autoSelectCurrentItem();
+    this.fetchData();
+    this.handleSorting(this.getOrder.order);
+    this.autoSelectCurrentItem();
   },
 });
 </script>
@@ -146,5 +154,4 @@ body {
   width: 8px;
   border: 1px solid #d5d5d5;
 }
-
 </style>

@@ -1,29 +1,28 @@
 <template>
-  <div class="row   text-white font-weight-bold text-center ">
+  <div class="row text-white font-weight-bold text-center">
     <TableHatCell
       :order="order"
-      :title="'Todo'"
-      :name="'todo'"
+      title="Todo"
+      name="todo"
       @handleSorting="handleSorting"
     />
     <TableHatCell
       :order="order"
-      :title="'State'"
-      :name="'state'"
+      title="State"
+      name="state"
       @handleSorting="handleSorting"
     />
     <TableHatCell
       :order="order"
-      :title="'Date'"
-      :name="'createdAt'"
+      title="Date"
+      name="createdAt"
       @handleSorting="handleSorting"
     />
   </div>
 </template>
   
-<script lang="ts">
-import { defineComponent, PropType } from "vue";
-import { IOrder } from '../../types/OrderBy';
+<script>
+import { defineComponent } from "vue";
 import TableHatCell from './TodoHatCell.vue';
 
 export default defineComponent({
@@ -34,13 +33,13 @@ export default defineComponent({
     props: {
         order: {
             required: true,
-            type: Object as PropType<IOrder>,
+            type: Object,
         },
     },
     emits: ["handleSorting"],
 
     methods: {
-        handleSorting: function (type: string) {
+        handleSorting(type) {
             this.$emit("handleSorting", type);
         },
     },
@@ -48,4 +47,3 @@ export default defineComponent({
 </script>
   
 <style scoped></style>
-  

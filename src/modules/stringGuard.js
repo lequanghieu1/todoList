@@ -1,4 +1,4 @@
-export default function stringGuard(stringOrNo: string | undefined): string {
+export default function stringGuard(stringOrNo) {
   if (stringOrNo === undefined) {
     return "";
   } else {

@@ -73,53 +73,55 @@
   </dialog>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref, onMounted, PropType } from "vue";
+<script>
+import { defineComponent, ref, onMounted } from "vue";
 
 import ShowDialogInput from "@/components/DialogForm/ShowDialogInput.vue";
 import ShowDialogSelect from "@/components/DialogForm/ShowDialogSelect.vue";
 
-import { IDialogItem, IDialogProps } from '../../types/Dialog';
 import { mapGetters, mapActions } from 'vuex';
 
 export default defineComponent({
   name: "ShowDialog",
-  components: { ShowDialogInput,ShowDialogSelect },
+  components: { ShowDialogInput, ShowDialogSelect },
   emits: ["onClickCallback"],
-  computed:
-    mapGetters(['getInputTodo','getInputState','getTitle','getSignupButtonDisabled']),
+  computed: {
+    ...mapGetters(['getInputTodo', 'getInputState', 'getTitle', 'getSignupButtonDisabled']),
+  },
   methods: {
     ...mapActions({
-      setInputTodo:'setInputTodo',setInputState:'setInputState'}),
-      onSubmitDialog: function () {
-      const DialogProps: IDialogItem = {
+      setInputTodo: 'setInputTodo',
+      setInputState: 'setInputState'
+    }),
+    onSubmitDialog() {
+      const DialogProps = {
         event: "Ok",
         method: this.dialogProps.type,
       };
       if (this.dialog) this.dialog.close();
       this.$emit("onClickCallback", DialogProps);
     },
-    },
+  },
 
   setup(_, { emit }) {
-    const dialog = ref<HTMLDialogElement | null>(null);
+    const dialog = ref(null);
     function onCloseDialog() {
       if (dialog.value) dialog.value.close();
-      const DialogProps: IDialogItem = { event: "Cancel" };
+      const DialogProps = { event: "Cancel" };
       emit("onClickCallback", DialogProps);
     }
     onMounted(() => {
       if (dialog.value) {
         dialog.value.showModal();
-        //click outer modal form listener
+        // Click outer modal form listener
         dialog.value.addEventListener("click", (e) => {
           const dialogDimensions = dialog.value?.getBoundingClientRect();
           if (
-            dialogDimensions !== undefined &&
-            (e.clientX < +dialogDimensions?.left ||
-              e.clientX > +dialogDimensions?.right ||
-              e.clientY < +dialogDimensions?.top ||
-              e.clientY > +dialogDimensions?.bottom)
+            dialogDimensions &&
+            (e.clientX < dialogDimensions.left ||
+              e.clientX > dialogDimensions.right ||
+              e.clientY < dialogDimensions.top ||
+              e.clientY > dialogDimensions.bottom)
           ) {
             onCloseDialog();
           }
@@ -127,13 +129,13 @@ export default defineComponent({
       }
     });
 
-    return { dialog,  onCloseDialog };
+    return { dialog, onCloseDialog };
   },
 
   props: {
     dialogProps: {
       required: true,
-      type: Object as PropType<IDialogProps>,
+      type: Object,
     },
   },
 });

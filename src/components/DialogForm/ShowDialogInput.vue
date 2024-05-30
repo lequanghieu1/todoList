@@ -8,7 +8,7 @@
       v-model="inputValue"
       class="form-control"
       :class="{ 'is-invalid': errors[name] }"
-      title="{{errors[name]}}"
+      :title="errors[name]"
       @keyup="validateInput"
       @input="updateValue($event)"
       required
@@ -22,7 +22,7 @@
   </div>
 </template>
 
-<script lang="ts">
+<script>
 import { defineComponent, ref } from "vue";
 import useFormValidation from "@/modules/useFormValidation";
 import stringGuard from "@/modules/stringGuard";
@@ -50,9 +50,9 @@ export default defineComponent({
     const validateInput = () => {
       validateNameField(props.name, inputValue.value);
     };
-    const placeholder = "Enter " + props.label.toLocaleLowerCase();
-    const updateValue = (e: Event) => {
-      emit("setInput", (e.target as HTMLInputElement).value);
+    const placeholder = "Enter " + props.label.toLowerCase();
+    const updateValue = (e) => {
+      emit("setInput", e.target.value);
     };
 
     return { placeholder, inputValue, errors, validateInput, updateValue };

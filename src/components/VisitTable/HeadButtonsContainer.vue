@@ -19,18 +19,20 @@
     </div>
   </div>
 </template>
-<script lang="ts">
+
+<script>
 import { defineComponent } from "vue";
 import HeadButton from "@/components/VisitTable/HeadButton.vue";
 
 export default defineComponent({
+  name: "HeadButtons",
   components: {
     HeadButton,
   },
   emits: ["onClickGo"],
 
   methods: {
-    onClick: function (type: string) {
+    onClick(type) {
       this.$emit("onClickGo", type);
     },
   },

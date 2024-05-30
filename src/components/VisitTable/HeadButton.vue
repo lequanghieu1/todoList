@@ -6,28 +6,14 @@
   >
     <span class="mx-1 text-middle">{{ title }}</span>
     <AddUserSvg v-if="icon === 'AddItem'" />
-    <RemoveUserSvg
-      v-else-if="icon === 'RemoveItem'"
-      class="mx-1"
-    />
-    <EditUserSvg
-      v-else
-      class="mx-1"
-    />
+    <RemoveUserSvg v-else-if="icon === 'RemoveItem'" class="mx-1" />
+    <EditUserSvg v-else class="mx-1" />
   </button>
 </template>
-<script lang="ts">
-import { defineComponent } from "vue";
-import AddUserSvg from "@/components/svg/AddUserSvg.vue";
-import RemoveUserSvg from "@/components/svg/RemoveUserSvg.vue";
-import EditUserSvg from "@/components/svg/EditUserSvg.vue";
 
-export default defineComponent({
-  components: {
-    AddUserSvg,
-    RemoveUserSvg,
-    EditUserSvg,
-  },
+<script>
+export default {
+  name: "IconButton",
   emits: ["onClickButton"],
   props: {
     title: {
@@ -40,11 +26,11 @@ export default defineComponent({
     },
   },
   methods: {
-    onClick: function () {
+    onClick() {
       this.$emit("onClickButton", this.icon);
     },
   },
-});
+};
 </script>
 
 <style scoped></style>

@@ -1,13 +1,10 @@
-import { ActionTree, GetterTree, Module, MutationTree } from "vuex";
-import IDialog, { IDialogProps } from "../../types/Dialog";
-import { RootStateStorable } from "./todo";
 import stringGuard from "../../modules/stringGuard";
 import useFormValidation from "@/modules/useFormValidation";
 import useSubmitButtonState from "@/modules/useSubmitButtonState";
 
 const { errors } = useFormValidation();
 
-const dialogState: IDialog = {
+const dialogState = {
   show: false,
   disableConfirm: false,
   inputTodo: "",
@@ -17,17 +14,17 @@ const dialogState: IDialog = {
   },
 };
 
-const dialogGetters: GetterTree<IDialog, RootStateStorable> = {
-  getShowState(state): boolean {
+const dialogGetters = {
+  getShowState(state) {
     return state.show;
   },
-  getDialogProps(state): IDialogProps {
+  getDialogProps(state) {
     return state.dialogProps;
   },
-  getInputTodo(state): string {
+  getInputTodo(state) {
     return stringGuard(state.inputTodo);
   },
-  getInputState(state): string {
+  getInputState(state) {
     return stringGuard(state.inputState);
   },
   getTitle(state) {
@@ -40,7 +37,7 @@ const dialogGetters: GetterTree<IDialog, RootStateStorable> = {
   },
 };
 
-const dialogActions: ActionTree<IDialog, RootStateStorable> = {
+const dialogActions = {
   setShowState(ctx, value) {
     ctx.commit(value ? "setShowTrue" : "setShowFalse");
   },
@@ -57,7 +54,8 @@ const dialogActions: ActionTree<IDialog, RootStateStorable> = {
     ctx.commit("setSignupButtonDisabled");
   },
 };
-const dialogMutations: MutationTree<IDialog> = {
+
+const dialogMutations = {
   setSignupButtonDisabled(state) {
     if (state.dialogProps.type === "RemoveItem") return true;
     const dialogData = {
@@ -87,10 +85,12 @@ const dialogMutations: MutationTree<IDialog> = {
       state.dialogProps.item = { ...state.dialogProps.item, state: value };
   },
 };
-const dialogStore: Module<IDialog, RootStateStorable> = {
+
+const dialogStore = {
   actions: dialogActions,
   mutations: dialogMutations,
   state: dialogState,
   getters: dialogGetters,
 };
+
 export default dialogStore;

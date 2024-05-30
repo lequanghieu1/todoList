@@ -1,19 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
-import OrderBy, { IOrder } from "@/types/OrderBy";
-import ITodo from "@/types/Todo";
-import { ActionTree, GetterTree, Module, MutationTree } from "vuex";
-import { IError } from "../../types/ErrorType";
 import { dateToString } from "../../modules/dateToString";
 
-export interface RootStateStorable {
-  todos: ITodo[];
-  loadDate: { error: IError; loading: boolean };
-  currentId: string;
-  order: IOrder;
-  autoScroll: boolean;
-}
-
-const rootState: RootStateStorable = {
+const rootState = {
   todos: [],
   loadDate: { error: { show: false, message: "" }, loading: true },
   currentId: "",
@@ -21,9 +9,9 @@ const rootState: RootStateStorable = {
   autoScroll: false,
 };
 
-const rootGetters: GetterTree<RootStateStorable, RootStateStorable> = {
-  getTodos(state): ITodo[] {
-    return [...state.todos].sort((a: ITodo, b: ITodo): number =>
+const rootGetters = {
+  getTodos(state) {
+    return [...state.todos].sort((a, b) =>
       a[state.order.order] > b[state.order.order]
         ? state.order.reverse
           ? -1
@@ -45,7 +33,7 @@ const rootGetters: GetterTree<RootStateStorable, RootStateStorable> = {
   getOrder(state) {
     return state.order;
   },
-  getCurrentId(state): string {
+  getCurrentId(state) {
     return state.currentId;
   },
   getScroll(state) {
@@ -53,7 +41,7 @@ const rootGetters: GetterTree<RootStateStorable, RootStateStorable> = {
   },
 };
 
-const rootActions: ActionTree<RootStateStorable, RootStateStorable> = {
+const rootActions = {
   fetchData(ctx) {
     ctx.commit("setLoading", true);
     const storedTodos = window.localStorage.getItem("todos");
@@ -64,19 +52,19 @@ const rootActions: ActionTree<RootStateStorable, RootStateStorable> = {
   autoSelectCurrentItem(ctx) {
     if (ctx.getters.getCurrentId === "") ctx.commit("setFirst");
   },
-  handleSorting(ctx, neworder: OrderBy) {
+  handleSorting(ctx, neworder) {
     if (ctx.getters.getOrder.order !== neworder)
       ctx.commit("setReverse", false);
     else ctx.commit("setReverse", !ctx.state.order.reverse);
     ctx.commit("setOrder", neworder);
     ctx.commit("setAutoScroll", true);
   },
-  newCurrentItem(ctx, newCurrent: string) {
+  newCurrentItem(ctx, newCurrent) {
     ctx.commit("setError", { show: false, message: "" });
     ctx.commit("setCurrent", newCurrent);
     ctx.commit("setAutoScroll", false);
   },
-  addItem(ctx, newItem: ITodo) {
+  addItem(ctx, newItem) {
     ctx.commit("setError", { show: false, message: "" });
     try {
       const id = uuidv4();
@@ -92,7 +80,7 @@ const rootActions: ActionTree<RootStateStorable, RootStateStorable> = {
       ctx.commit("setError", { show: true, message: "Can't create item" });
     }
   },
-  editItem(ctx, item: ITodo) {
+  editItem(ctx, item) {
     ctx.commit("setError", { show: false, message: "" });
     try {
       ctx.commit("updateTodo", item);
@@ -105,17 +93,15 @@ const rootActions: ActionTree<RootStateStorable, RootStateStorable> = {
       });
     }
   },
-  deleteItem(ctx, id: string) {
+  deleteItem(ctx, id) {
     ctx.commit("setError", { show: false, message: "" });
     try {
       const realIndex = ctx.state.todos.findIndex((el) => id === el.id);
-      const index = ctx.getters.getTodos.findIndex(
-        (el: { id: string }) => id === el.id
-      );
+      const index = ctx.getters.getTodos.findIndex((el) => id === el.id);
       ctx.commit("deleteTodo", realIndex);
       window.localStorage.setItem("todos", JSON.stringify(ctx.state.todos));
       let newCurrent = "";
-      const indexTodos: ITodo[] = ctx.getters.getTodos;
+      const indexTodos = ctx.getters.getTodos;
       if (ctx.getters.getTodos.length > index) {
         newCurrent = indexTodos[index].id;
         console.log(index);
@@ -127,24 +113,24 @@ const rootActions: ActionTree<RootStateStorable, RootStateStorable> = {
       ctx.commit("setError", { show: true, message: "Can't delete item" });
     }
   },
-  setError(ctx, error: IError) {
+  setError(ctx, error) {
     ctx.commit("setError", error);
   },
 };
 
-const rootMutations: MutationTree<RootStateStorable> = {
-  updateTodos(state, todos: ITodo[]) {
+const rootMutations = {
+  updateTodos(state, todos) {
     state.todos = todos;
   },
-  addTodo(state, todo: ITodo) {
+  addTodo(state, todo) {
     state.todos.unshift(todo);
   },
-  updateTodo(state, todo: ITodo) {
+  updateTodo(state, todo) {
     const index = state.todos.findIndex((el) => todo.id === el.id);
     state.todos[index].todo = todo.todo;
     state.todos[index].state = todo.state;
   },
-  deleteTodo(state, index: number) {
+  deleteTodo(state, index) {
     state.todos.splice(index, 1);
   },
   setLoading(state, loading) {
@@ -156,7 +142,7 @@ const rootMutations: MutationTree<RootStateStorable> = {
   setFirst(state) {
     if (state.todos.length) state.currentId = state.todos[0].id;
   },
-  setError(state, error: IError) {
+  setError(state, error) {
     state.loadDate.error = { ...error };
   },
   setReverse(state, value) {
@@ -170,10 +156,11 @@ const rootMutations: MutationTree<RootStateStorable> = {
   },
 };
 
-const todoStore: Module<RootStateStorable, RootStateStorable> = {
+const todoStore = {
   actions: rootActions,
   mutations: rootMutations,
   state: rootState,
   getters: rootGetters,
 };
+
 export default todoStore;

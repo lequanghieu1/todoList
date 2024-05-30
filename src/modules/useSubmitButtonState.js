@@ -1,13 +1,8 @@
-import IValuesWithKeys from "@/types/ValuesWithKeys";
-
-export default function useSubmitButtonState(
-  data: IValuesWithKeys,
-  errors: IValuesWithKeys
-) {
+export default function useSubmitButtonState(data, errors) {
   const isButtonDisabled = () => {
     let disabled = true;
     for (const prop in data) {
-       if (!data[prop] || errors[prop] ) {
+      if (!data[prop] || errors[prop]) {
         disabled = true;
         break;
       }
